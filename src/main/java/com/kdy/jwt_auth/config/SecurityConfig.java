@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/h2-console/**"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
