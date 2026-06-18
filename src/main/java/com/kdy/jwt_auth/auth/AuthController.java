@@ -1,6 +1,8 @@
 package com.kdy.jwt_auth.auth;
 
+import com.kdy.jwt_auth.auth.dto.LoginRequest;
 import com.kdy.jwt_auth.auth.dto.SignupRequest;
+import com.kdy.jwt_auth.auth.dto.TokenResponse;
 import com.kdy.jwt_auth.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +22,11 @@ public class AuthController {
     public ApiResponse<Void> signup(@Valid @RequestBody SignupRequest request) {
         authService.signup(request);
         return ApiResponse.success();
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        TokenResponse response = authService.login(request);
+        return ApiResponse.success(response);
     }
 }

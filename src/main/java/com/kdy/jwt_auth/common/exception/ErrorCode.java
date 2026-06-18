@@ -3,7 +3,8 @@ package com.kdy.jwt_auth.common.exception;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
-    DUPLICATED_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
+    DUPLICATED_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
+    INVALID_LOGIN(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
 
     private final HttpStatus status;
     private final String message;
