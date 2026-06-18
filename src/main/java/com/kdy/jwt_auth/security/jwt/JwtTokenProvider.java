@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import com.kdy.jwt_auth.domain.member.Role;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 
 @Component
 public class JwtTokenProvider {
@@ -40,5 +43,32 @@ public class JwtTokenProvider {
                 .expiration(expiration)
                 .signWith(key)
                 .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    public JwtPrincipal getPrincipal(String token) {
+        Claims claims = parseClaims(token);
+
+        Long memberId = claims.get("memberId", Long.class);
+        String email = claims.get("email", String.class);
+        Role role = Role.valueOf(claims.get("role", String.class));
+
+        return new JwtPrincipal(memberId, email, role);
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
