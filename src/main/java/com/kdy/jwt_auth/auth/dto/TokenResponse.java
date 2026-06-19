@@ -2,10 +2,11 @@ package com.kdy.jwt_auth.auth.dto;
 
 public record TokenResponse(
         String accessToken,
+        String refreshToken,
         String tokenType
 ) {
 
-    public static TokenResponse bearer(String accessToken) {
-        return new TokenResponse(accessToken, "Bearer");
+    public static TokenResponse bearer(String accessToken, String refreshToken) {
+        return new TokenResponse(accessToken, refreshToken,"Bearer");
     }
 }

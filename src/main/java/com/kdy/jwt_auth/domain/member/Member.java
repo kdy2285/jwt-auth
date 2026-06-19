@@ -29,9 +29,20 @@ public class Member {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Column(length = 500)
+    private String refreshToken;
+
     public Member(String email, String password, Role role) {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void clearRefreshToken() {
+        this.refreshToken = null;
     }
 }

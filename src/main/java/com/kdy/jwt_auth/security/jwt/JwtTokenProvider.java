@@ -23,6 +23,9 @@ public class JwtTokenProvider {
     @Value("${jwt.access-token-expiration}")
     private long accessTokenExpiration;
 
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpiration;
+
     private SecretKey key;
 
     @PostConstruct
@@ -39,6 +42,7 @@ public class JwtTokenProvider {
                 .claim("memberId", member.getId())
                 .claim("email", member.getEmail())
                 .claim("role", member.getRole().name())
+                .claim("type", "ACCESS")
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(key)
@@ -70,5 +74,21 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public String createRefreshToken(Member member) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshTokenExpiration);
+
+        return Jwts.builder()
+                .subject(String.valueOf(member.getId()))
+                .claim("memberId", member.getId())
+                .claim("email", member.getEmail())
+                .claim("role", member.getRole().name())
+                .claim("type", "REFRESH")
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(key)
+                .compact();
     }
 }
