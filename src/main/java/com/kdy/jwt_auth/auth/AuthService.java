@@ -62,7 +62,7 @@ public class AuthService {
     public TokenResponse reissue(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        if(!jwtTokenProvider.validateToken(refreshToken)) {
+        if (!jwtTokenProvider.validateToken(refreshToken, JwtTokenProvider.REFRESH_TYPE)) {
             throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 

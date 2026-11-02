@@ -17,6 +17,10 @@ import io.jsonwebtoken.JwtException;
 @Component
 public class JwtTokenProvider {
 
+    public static final String ACCESS_TYPE = "ACCESS";
+    public static final String REFRESH_TYPE = "REFRESH";
+    private static final String TYPE_CLAIM = "type";
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -42,17 +46,21 @@ public class JwtTokenProvider {
                 .claim("memberId", member.getId())
                 .claim("email", member.getEmail())
                 .claim("role", member.getRole().name())
-                .claim("type", "ACCESS")
+                .claim(TYPE_CLAIM, ACCESS_TYPE)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(key)
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    /**
+     * 서명과 만료가 유효하고, type claim이 기대한 값인지 함께 검사한다.
+     * 같은 키로 서명한 Refresh Token이 Access Token 자리에 쓰이는 것을 막기 위함이다.
+     */
+    public boolean validateToken(String token, String expectedType) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token);
+            return expectedType.equals(claims.get(TYPE_CLAIM, String.class));
         } catch (JwtException | IllegalArgumentException exception) {
             return false;
         }
@@ -85,7 +93,7 @@ public class JwtTokenProvider {
                 .claim("memberId", member.getId())
                 .claim("email", member.getEmail())
                 .claim("role", member.getRole().name())
-                .claim("type", "REFRESH")
+                .claim(TYPE_CLAIM, REFRESH_TYPE)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(key)
