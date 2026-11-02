@@ -32,21 +32,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        request.getHeaderNames().asIterator()
-                .forEachRemaining(headerName ->
-                        System.out.println(headerName + " = " + request.getHeader(headerName))
-                );
-
         String token = resolveToken(request);
 
-        System.out.println("JWT FILTER URI = " + request.getRequestURI());
-        System.out.println("TOKEN = " + token);
-
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            System.out.println("TOKEN VALID");
-
+        // Access Token만 인증에 사용한다. Refresh Token은 서명이 유효해도 여기서 거부된다.
+        if (token != null && jwtTokenProvider.validateToken(token, JwtTokenProvider.ACCESS_TYPE)) {
             JwtPrincipal principal = jwtTokenProvider.getPrincipal(token);
-            System.out.println("PRINCIPAL = " + principal);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -60,9 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println("AUTH = " + SecurityContextHolder.getContext().getAuthentication());
-        } else {
-            System.out.println("TOKEN INVALID OR NULL");
         }
 
         filterChain.doFilter(request, response);

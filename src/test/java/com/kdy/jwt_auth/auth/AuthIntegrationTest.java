@@ -164,6 +164,35 @@ class AuthIntegrationTest {
     }
 
     @Test
+    @DisplayName("Refresh Token을 Access Token 자리에 넣으면 401을 반환한다")
+    void me_withRefreshToken_fail() throws Exception {
+        signup("user@test.com", "12345678");
+        TokenPair tokenPair = login("user@test.com", "12345678");
+
+        mockMvc.perform(get("/api/members/me")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenPair.refreshToken()))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("Access Token으로 재발급을 요청하면 401을 반환한다")
+    void reissue_withAccessToken_fail() throws Exception {
+        signup("user@test.com", "12345678");
+        TokenPair tokenPair = login("user@test.com", "12345678");
+
+        mockMvc.perform(post("/api/auth/reissue")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "refreshToken": "%s"
+                                }
+                                """.formatted(tokenPair.accessToken())))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     @DisplayName("Refresh Token으로 Access Token과 Refresh Token을 재발급한다")
     void reissue_success() throws Exception {
         signup("user@test.com", "12345678");
